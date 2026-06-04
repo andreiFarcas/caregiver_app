@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "774516456309",
+    "project_id": "bracelet-tracker-ae07b",
+    "storage_bucket": "bracelet-tracker-ae07b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774516456309:android:136ef4babb8d436ffbf13c",
+        "android_client_info": {
+          "package_name": "com.example.caregiver_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDogWOClyEJiZ9wfUvBEHbU1t0TSD35S68"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
