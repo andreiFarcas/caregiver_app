@@ -6,6 +6,7 @@ import '../../../../core/services/app_config_service.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../widgets/map_view_widget.dart';
 import '../widgets/event_history_list.dart';
+import 'geofence_setup_screen.dart'; 
 
 class BraceletDetailsScreen extends StatefulWidget {
   final BraceletModel bracelet;
@@ -93,6 +94,22 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
         title: Text('${_currentBracelet.patientName} - Details'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.location_on_outlined),
+            tooltip: 'Set up Geofence',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GeofenceSetupScreen(
+                    braceletId: _currentBracelet.id,
+                    initialLatitude: _currentBracelet.lastLocation.latitude,
+                    initialLongitude: _currentBracelet.lastLocation.longitude,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: 'Unpair Bracelet',
             color: Colors.redAccent,
@@ -111,6 +128,7 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
               longitude: _currentBracelet.lastLocation.longitude,
               accuracy: _currentBracelet.lastLocation.accuracy,
               source: _currentBracelet.lastLocation.source,
+              geofence: _currentBracelet.geofence,
             ),
             const SizedBox(height: 24),
             

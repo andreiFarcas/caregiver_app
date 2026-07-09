@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class LocationModel {
   final double latitude;
   final double longitude;
@@ -21,6 +23,27 @@ class LocationModel {
   }
 }
 
+class GeofenceModel {
+  final double latitude;
+  final double longitude;
+  final double radius;
+
+  GeofenceModel({
+    required this.latitude,
+    required this.longitude,
+    required this.radius,
+  });
+
+  factory GeofenceModel.fromJson(Map<String, dynamic> json) {
+    debugPrint('DEBUG: Parsing GeofenceModel from json: $json');
+    return GeofenceModel(
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      radius: (json['radius'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+}
+
 class BraceletModel {
   final String id;
   final String patientName;
@@ -28,6 +51,7 @@ class BraceletModel {
   final int batteryPercent;
   final LocationModel lastLocation;
   final String lastSeen;
+  final GeofenceModel? geofence;
 
   BraceletModel({
     required this.id,
@@ -36,6 +60,7 @@ class BraceletModel {
     required this.batteryPercent,
     required this.lastLocation,
     required this.lastSeen,
+    this.geofence,
   });
 
   factory BraceletModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +73,9 @@ class BraceletModel {
           ? LocationModel.fromJson(json['last_location']) 
           : LocationModel(latitude: 0.0, longitude: 0.0),
       lastSeen: json['last_seen'] ?? '',
+      geofence: json['geofence'] != null
+          ? GeofenceModel.fromJson(json['geofence'])
+          : null,
     );
   }
 }

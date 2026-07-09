@@ -24,4 +24,18 @@ class BraceletDetailsRepository {
   Future<bool> unpair(String braceletId, String appId) async {
     return await ApiService.unpairBracelet(braceletId, appId);
   }
+
+  Future<bool> setGeofence({
+    required String braceletId,
+    required double latitude,
+    required double longitude,
+    required double radius,
+  }) async {
+    return await ApiService.setGeofence(
+      braceletId: braceletId,
+      latitude: latitude,
+      longitude: longitude,
+      radius: radius,
+    );
+  }
 }

@@ -137,4 +137,36 @@ class ApiService {
       return false;
     }
   }
+
+  /// Sets a geofence for a specific bracelet
+  static Future<bool> setGeofence({
+    required String braceletId,
+    required double latitude,
+    required double longitude,
+    required double radius,
+  }) async {
+    final url = Uri.parse('$_baseUrl/api/bracelets/$braceletId/geofence');
+    try {
+      final response = await http.post(
+        url,
+        headers: {"X-App-Token": _appToken, "Content-Type": "application/json"},
+        body: jsonEncode({
+          "latitude": latitude,
+          "longitude": longitude,
+          "radius": radius,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Geofence set successfully for bracelet $braceletId.");
+        return true;
+      } else {
+        print("Failed to set geofence: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Network error setting geofence: $e");
+      return false;
+    }
+  }
 }
