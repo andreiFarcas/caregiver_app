@@ -38,4 +38,8 @@ class BraceletDetailsRepository {
       radius: radius,
     );
   }
+
+  Future<bool> resolveEmergency(String braceletId) async {
+      return await ApiService.resolveEmergency(braceletId);
+    }
 }

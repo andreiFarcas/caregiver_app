@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:caregiver_app/features/bracelet_details/data/repositories/bracelet_details_repository.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/models/bracelet_model.dart';
-import '../../data/repositories/bracelet_details_repository.dart';
 import '../../../../core/services/app_config_service.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../widgets/map_view_widget.dart';
@@ -72,6 +72,8 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
       ),
     );
 
+
+
     if (confirmed == true && mounted) {
       final appId = await AppConfigService.getAppId();
       final success = await _repository.unpair(_currentBracelet.id, appId);
@@ -84,10 +86,47 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
     }
   }
 
+  Future<void> _resolveEmergency() async {
+    final success = await _repository.resolveEmergency(_currentBracelet.id);
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Emergency resolved. Status set to OK.')),
+      );
+      // Immediately fetch updated details to refresh the UI
+      _fetchDetails();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to resolve emergency.', style: TextStyle(color: Colors.red))),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Format the date using our custom formatter
     final formattedLastSeen = DateFormatter.formatLastSeen(_currentBracelet.lastSeen);
+
+    // Determine status color and icon
+    final statusLower = _currentBracelet.status.toLowerCase();
+    Color statusColor;
+    IconData statusIcon;
+
+    if (statusLower == 'home') {
+      statusColor = Colors.green;
+      statusIcon = Icons.home;
+    } else if(statusLower == 'ok'){
+      statusColor= Colors.green;
+      statusIcon = Icons.check_circle;
+    }else if (statusLower == 'away') {
+      statusColor = Colors.orange;
+      statusIcon = Icons.directions_run; // or Icons.explore
+    } else if (statusLower == 'fall' || statusLower == 'panic') {
+      statusColor = Colors.red;
+      statusIcon = Icons.warning; // or Icons.error
+    } else {
+      statusColor = Colors.grey;
+      statusIcon = Icons.info;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -132,18 +171,51 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
             ),
             const SizedBox(height: 24),
             
-            // Status Summary details
+            /// Status Summary details
             const SizedBox(height: 12),
             Card(
+              color: (statusLower == 'fall' || statusLower == 'panic') 
+                  ? Colors.red.shade50 
+                  : null,
               child: ListTile(
                 leading: Icon(
-                  _currentBracelet.status.toLowerCase() == 'ok' ? Icons.check_circle : Icons.error,
-                  color: _currentBracelet.status.toLowerCase() == 'ok' ? Colors.green : Colors.red,
+                  statusIcon,
+                  color: statusColor,
+                  size: 32,
                 ),
-                title: Text('Status: ${_currentBracelet.status}'),
-                subtitle: Text('Battery: ${_currentBracelet.batteryPercent}%  •  Last Seen: $formattedLastSeen'),
+                title: Text(
+                  'Current Status: ${_currentBracelet.status.toUpperCase()}',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text('Battery: ${_currentBracelet.batteryPercent}% • Last Seen: $formattedLastSeen'),
               ),
             ),
+            
+            const SizedBox(height: 12),
+            
+            // Only show the resolve button if it's an emergency
+            if (_currentBracelet.status.toLowerCase() == 'fall' || 
+                _currentBracelet.status.toLowerCase() == 'panic')
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text(
+                    'MARK EMERGENCY AS RESOLVED',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  onPressed: _resolveEmergency,
+                ),
+              ),
+              
             const SizedBox(height: 24),
             
             // Event History

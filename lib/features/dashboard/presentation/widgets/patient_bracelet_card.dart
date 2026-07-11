@@ -12,12 +12,27 @@ class PatientBraceletCard extends StatelessWidget {
     this.onReturn,
   });
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    // Generate color based on status
-    final statusColor = bracelet.status.toLowerCase() == 'ok' ? Colors.green : Colors.red;
+    // Generate color and state based on status
+    final statusLower = bracelet.status.toLowerCase();
+    Color statusColor;
+    bool isEmergency = false;
+
+    if (statusLower == 'home' || statusLower == 'ok') {
+      statusColor = Colors.green;
+    } else if (statusLower == 'away') {
+      statusColor = Colors.amber; 
+    } else if (statusLower == 'fall' || statusLower == 'panic') {
+      statusColor = Colors.red;
+      isEmergency = true;
+    } else {
+      statusColor = Colors.grey;
+    }
 
     return Card(
+      // Color the whole card if it's an emergency
+      color: isEmergency ? Colors.red.shade50 : null,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -59,7 +74,7 @@ class PatientBraceletCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      bracelet.status,
+                      bracelet.status.toUpperCase(),
                       style: TextStyle(
                         color: statusColor,
                         fontWeight: FontWeight.bold,

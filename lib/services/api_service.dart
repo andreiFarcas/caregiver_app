@@ -169,4 +169,26 @@ class ApiService {
       return false;
     }
   }
+
+  /// Resolves an emergency status (panic or fall) back to 'ok'
+  static Future<bool> resolveEmergency(String braceletId) async {
+    final url = Uri.parse('$_baseUrl/api/bracelets/$braceletId/resolve');
+    try {
+      final response = await http.post(
+        url,
+        headers: {"X-App-Token": _appToken, "Content-Type": "application/json"},
+      );
+      if (response.statusCode == 200) {
+        print("Emergency resolved successfully for $braceletId.");
+        return true;
+      } else {
+        print("Failed to resolve emergency: ${response.statusCode} - ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Network error resolving emergency: $e");
+      return false;
+    }
+  }
+
 }
