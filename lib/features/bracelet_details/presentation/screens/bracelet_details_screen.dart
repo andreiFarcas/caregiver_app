@@ -56,6 +56,10 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
     }
   }
 
+  Future<void> _refreshDetails() async {
+    await _fetchDetails();
+  }
+
   Future<void> _unpair() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -156,24 +160,27 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Embedded Map
-            MapViewWidget(
-              latitude: _currentBracelet.lastLocation.latitude,
-              longitude: _currentBracelet.lastLocation.longitude,
-              accuracy: _currentBracelet.lastLocation.accuracy,
-              source: _currentBracelet.lastLocation.source,
-              geofence: _currentBracelet.geofence,
-            ),
-            const SizedBox(height: 24),
-            
-            /// Status Summary details
-            const SizedBox(height: 12),
-            Card(
+      body: RefreshIndicator(
+        onRefresh: _refreshDetails,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Embedded Map
+              MapViewWidget(
+                latitude: _currentBracelet.lastLocation.latitude,
+                longitude: _currentBracelet.lastLocation.longitude,
+                accuracy: _currentBracelet.lastLocation.accuracy,
+                source: _currentBracelet.lastLocation.source,
+                geofence: _currentBracelet.geofence,
+              ),
+              const SizedBox(height: 24),
+              
+              /// Status Summary details
+              const SizedBox(height: 12),
+              Card(
               color: (statusLower == 'fall' || statusLower == 'panic') 
                   ? Colors.red.shade50 
                   : null,
@@ -194,38 +201,39 @@ class _BraceletDetailsScreenState extends State<BraceletDetailsScreen> {
               ),
             ),
             
-            const SizedBox(height: 12),
-            
-            // Only show the resolve button if it's an emergency
-            if (_currentBracelet.status.toLowerCase() == 'fall' || 
-                _currentBracelet.status.toLowerCase() == 'panic')
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text(
-                    'MARK EMERGENCY AS RESOLVED',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  onPressed: _resolveEmergency,
-                ),
-              ),
+              const SizedBox(height: 12),
               
-            const SizedBox(height: 24),
-            
-            // Event History
-            const Text(
-              'Alerts & Event History',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            EventHistoryList(events: _events),
-          ],
+              // Only show the resolve button if it's an emergency
+              if (_currentBracelet.status.toLowerCase() == 'fall' || 
+                  _currentBracelet.status.toLowerCase() == 'panic')
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text(
+                      'MARK EMERGENCY AS RESOLVED',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    onPressed: _resolveEmergency,
+                  ),
+                ),
+                
+              const SizedBox(height: 24),
+              
+              // Event History
+              const Text(
+                'Alerts & Event History',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              EventHistoryList(events: _events),
+            ],
+          ),
         ),
       ),
     );
